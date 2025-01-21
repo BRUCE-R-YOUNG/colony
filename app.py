@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 
 # YOLOv8モデルのロード
-model = YOLO("model/colony_600.pt")  # 事前トレーニング済みモデルを利用
+model = YOLO("model/colony_250117.pt")  # 事前トレーニング済みモデルを利用
 
 def detect_and_count_objects(image):
     results = model(image)  # YOLOv8で画像を処理
