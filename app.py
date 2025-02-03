@@ -54,6 +54,8 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # CSSを定義（より具体的なセレクタを使用）
+
+
 def add_css():
     st.markdown(
         f"""
@@ -79,7 +81,7 @@ except Exception as e:
     st.error(f"Error loading model: {e}")
 
 # 検出の信頼度の閾値（例: 0.5 以上のものだけを処理）
-CONFIDENCE_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.3
 
 # クラス名の変換用辞書
 class_mapping = {
@@ -141,8 +143,6 @@ if option == "Upload Image":
         image_np = np.array(image)
         detected_image, class_counts = detect_and_count_objects(image_np)
 
-        st.markdown('<div class="custom-group-container">',
-                    unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             st.image(detected_image, caption="Detection Results",
@@ -153,7 +153,6 @@ if option == "Upload Image":
             for obj_class, count in class_counts.items():
                 st.write(f"- {obj_class}: {count}")
             st.write(f"**Total Objects: {total_count}**")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 elif option == "Use Webcam":
     # st.camera_input を利用してカメラから画像をキャプチャ
