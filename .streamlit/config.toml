@@ -1,0 +1,7 @@
+# .streamlit/config.toml
+[server]
+headless = true
+enableCORS = true
+enableXsrfProtection = true
+sslCertFile = "certificate/server.crt"
+sslKeyFile = "certificate/server.key"

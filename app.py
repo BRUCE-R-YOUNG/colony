@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 from collections import Counter
 import base64
+import os
 
 # ローカル画像をBase64エンコードする関数
 
@@ -18,9 +19,41 @@ def get_base64_image(image_path):
 # ローカル背景画像をエンコード
 encoded_bk = get_base64_image("images/colony-sea-pre.png")
 
+
+hide_streamlit_style = """
+                <style>
+                div[data-testid="stToolbar"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+                div[data-testid="stDecoration"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+                div[data-testid="stStatusWidget"] {
+                visibility: hidden;
+                height: 0%;
+                position: fixed;
+                }
+                #MainMenu {
+                visibility: hidden;
+                height: 0%;
+                }
+                header {
+                visibility: hidden;
+                height: 0%;
+                }
+                footer {
+                visibility: hidden;
+                height: 0%;
+                }
+                </style>
+                """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # CSSを定義（より具体的なセレクタを使用）
-
-
 def add_css():
     st.markdown(
         f"""
@@ -31,6 +64,8 @@ def add_css():
             background-size: cover;
             background-attachment: fixed;
         }}
+
+
         </style>
         """,
         unsafe_allow_html=True
