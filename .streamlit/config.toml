@@ -6,3 +6,9 @@ enableXsrfProtection = true
 sslCertFile = "certificate/server.crt"
 sslKeyFile = "certificate/server.key"
 
+[theme]
+primaryColor="#FFFFF"
+backgroundColor="#0f0f0f"
+secondaryBackgroundColor="#FFFFF"
+textColor="#FFFFF"
+font="sans serif"
