@@ -84,7 +84,7 @@ def add_css():
 
         [data-testid="stHorizontalBlock"]{{
             padding:20px;
-            background-color:black;
+            background-color: black;
         }}
         </style>
         """,
