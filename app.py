@@ -5,11 +5,15 @@ import numpy as np
 from PIL import Image
 from collections import Counter
 import base64
+import pandas as pd  # pandasを追加
+from datetime import datetime  # タイムスタンプ用
 
 
 # UI
 
 # アイコンのBase64エンコード
+
+
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
         encoded = base64.b64encode(img_file.read()).decode()
@@ -98,12 +102,12 @@ add_css()
 
 # YOLOv8モデルのロード
 try:
-    model = YOLO("model/best_0130_2.pt")
+    model = YOLO("model/best_0206_1611.pt")
 except Exception as e:
     st.error(f"Error loading model: {e}")
 
 # 検出の信頼度の閾値（例: 0.5 以上のものだけを処理）
-CONFIDENCE_THRESHOLD = 0.4
+CONFIDENCE_THRESHOLD = 0.3
 
 # クラス名の変換用辞書
 class_mapping = {
@@ -168,42 +172,83 @@ option = st.radio(
 
 # 検出処理
 
+# 検出データをCSVに保存する関数
 
+
+def save_to_csv(class_counts, filename="detected_objects.csv"):
+    # 現在の日時を取得
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # 各菌のカウントを取得（未検出の場合は0）
+    s_aureus_count = class_counts.get("S.aureus", 0)
+    s_cerevisiae_count = class_counts.get("S.cerevisiae", 0)
+    e_coli_count = class_counts.get("E.coli", 0)
+    total_count = s_aureus_count + s_cerevisiae_count + e_coli_count
+
+    # データフレームを作成
+    data = {
+        "Timestamp": [timestamp],
+        "S.aureus": [s_aureus_count],
+        "S.cerevisiae": [s_cerevisiae_count],
+        "E.coli": [e_coli_count],
+        "Total": [total_count]
+    }
+    df = pd.DataFrame(data)
+
+    # CSVに変換してBase64でエンコード
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()
+
+    # ダウンロードリンクを作成
+    href = f'<a href="data:file/csv;base64,{
+        b64}" download="{filename}">📥 CSVファイルをダウンロード</a>'
+    return href
+
+
+# 検出処理の部分にCSV保存機能を追加
 if option == "📁 Upload Image":
     uploaded_file = st.file_uploader(
-        "📂 Choose an image...", type=["jpg", "jpeg", "png"])
+        "📂 画像を選択してください...", type=["jpg", "jpeg", "png"])
     if uploaded_file:
         image = Image.open(uploaded_file).convert("RGB")
         image_np = np.array(image)
+
         # 検出処理
         detected_image, class_counts = detect_and_count_objects(image_np)
 
         col1, col2 = st.columns(2)
         with col1:
-            st.image(detected_image, caption="Detection Results",
-                     use_container_width=True)
+            st.image(detected_image, caption="検出結果", use_container_width=True)
         with col2:
-            st.write("🧐 **Detected Object Counts:**")
+            st.write("🧐 **検出されたオブジェクトの数:**")
+            st.write(f"🦠 S.aureus: {class_counts.get('S.aureus', 0)}")
+            st.write(f"🧫 S.cerevisiae: {class_counts.get('S.cerevisiae', 0)}")
+            st.write(f"🧬 E.coli: {class_counts.get('E.coli', 0)}")
             total_count = sum(class_counts.values())
-            for obj_class, count in class_counts.items():
-                st.write(f"🔬 {obj_class}: {count}")
-            st.write(f"📊 **Total Objects: {total_count}**")
+            st.write(f"📊 **総数: {total_count}**")
 
+        # CSVダウンロードリンクを表示
+        st.markdown(save_to_csv(class_counts), unsafe_allow_html=True)
 
 elif option == "📷 Use Webcam":
-    captured_image = st.camera_input("📸 Capture Photo using your device")
+    captured_image = st.camera_input("📸 デバイスのカメラで撮影")
     if captured_image is not None:
         image = Image.open(captured_image).convert("RGB")
         image_np = np.array(image)
+
         detected_image, class_counts = detect_and_count_objects(image_np)
 
         col1, col2 = st.columns(2)
         with col1:
-            st.image(detected_image, caption="Captured Photo",
+            st.image(detected_image, caption="撮影された写真",
                      use_container_width=True)
         with col2:
-            st.write("🔍 **Detected Object Counts:**")
+            st.write("🔍 **検出されたオブジェクトの数:**")
+            st.write(f"🦠 S.aureus: {class_counts.get('S.aureus', 0)}")
+            st.write(f"🧫 S.cerevisiae: {class_counts.get('S.cerevisiae', 0)}")
+            st.write(f"🧬 E.coli: {class_counts.get('E.coli', 0)}")
             total_count = sum(class_counts.values())
-            for obj_class, count in class_counts.items():
-                st.write(f"🦠 {obj_class}: {count}")
-            st.write(f"📊 **Total Objects: {total_count}**")
+            st.write(f"📊 **総数: {total_count}**")
+
+        # CSVダウンロードリンクを表示
+        st.markdown(save_to_csv(class_counts), unsafe_allow_html=True)
