@@ -89,11 +89,11 @@ def add_css():
 add_css()
 
 try:
-    model = YOLO("model/best_train20.pt")
+    model = YOLO("model/best_train29.pt")
 except Exception as e:
     st.error(f"Error loading model: {e}")
 
-CONFIDENCE_THRESHOLD = 0.3
+CONFIDENCE_THRESHOLD = 0.42
 
 class_mapping = {
     "E": "E.coli",
