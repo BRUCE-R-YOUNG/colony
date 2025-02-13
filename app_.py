@@ -113,7 +113,6 @@ def detect_and_count_objects(image):
     detections = results[0].boxes.data
 
     class_counts = Counter()
-    overlay = image.copy()
 
     for box in detections:
         x1, y1, x2, y2, conf, cls = box
@@ -129,27 +128,10 @@ def detect_and_count_objects(image):
 
         color = color_mapping.get(display_class, (0, 255, 0))
 
-        # 塗りつぶし矩形（透明度を上げる）
-        cv2.rectangle(overlay, (x1, y1), (x2, y2), color, -1)
-
-    # 画像と半透明矩形をブレンド
-    alpha = 0.2  # 透明度を上げる（0.2 = ほぼ透明）
-    cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
-
-    # ラベルを直接描画（オブジェクトの色を反映）
-    for box in detections:
-        x1, y1, x2, y2, conf, cls = box
-        if conf < CONFIDENCE_THRESHOLD:
-            continue
-        x1, y1 = map(int, [x1, y1])
-        raw_class = model.names[int(cls)]
-        display_class = class_mapping.get(raw_class, raw_class)
-        label = f"{display_class} {conf:.2f}"
-        label_color = color_mapping.get(
-            display_class, (0, 255, 0))  # ラベルの色もオブジェクトの色に
-
-        cv2.putText(image, label, (x1 + 5, y1 - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, label_color, 2)
+        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+        cv2.putText(image, label, (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.0,
+                    color, 2)
 
     return image, class_counts
 
